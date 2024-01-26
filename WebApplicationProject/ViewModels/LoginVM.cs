@@ -4,6 +4,7 @@ namespace WebApplicationProject.ViewModels
 {
     public class LoginVM
     {
+        [Display(Name = "Username")]
         [Required(ErrorMessage ="Username is required.")]
         public string? UserName { get; set; }
 

@@ -1,0 +1,35 @@
+﻿
+@using WebApplicationProject.Models;
+@model Image
+@{
+    ViewData["Title"] = "Upload Image";
+}
+<div class="row d-flex align-items-center justify-content-center border border-dark p-5 rounded-top">
+    <div class="col-4">
+        <h2>Upload Image</h2>
+
+        <form asp-action="Upload" asp-controller="Image" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ImageData" class="control-label">Select Image:</label>
+                <input asp-for="ImageData" type="file" class="form-control" name="file"/>
+                <span asp-validation-for="ImageData" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Upload Image</button>
+                <a asp-action="Index" asp-controller="Image" class="btn btn-secondary">Back to Gallery</a>
+            </div>
+            <span class="text-success">
+                @ViewBag.Message
+            </span>
+        </form>
+    </div>
+</div>
+
+@* Client side validation(Validation without reloading page) *@
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

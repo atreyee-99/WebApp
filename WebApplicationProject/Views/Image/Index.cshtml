@@ -1,0 +1,82 @@
+﻿@model List<WebApplicationProject.Models.Image>
+
+@{
+    ViewData["Title"] = "Image Gallery";
+}
+
+<div class="row d-flex align-items-center justify-content-center border border-dark p-4 rounded-top">
+    <div class="col-4">
+        <h2>Image Gallery</h2>
+
+        
+
+        @if (Model.Count > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var image in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Show" asp-controller="Image" asp-route-id="@image.Id" class="thumbnail-link" target="_blank">
+                                    <img src="data:image/png;base64,@Convert.ToBase64String(image.ImageData)" alt="@image.FileName" class="img-thumbnail" width="200" height="150" />
+                                </a>
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-controller="Image" asp-route-id="@image.Id" class="btn btn-link text-info">Edit</a>
+                                <form asp-action="Delete" asp-controller="Image" asp-route-id="@image.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this image?');">
+                                    <input type="hidden" name="_method" value="DELETE" />
+                                    <button type="submit" class="btn btn-link text-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No images available</p>
+        }
+
+        <a href="@Url.Action("Upload","Image")" class="btn btn-outline-primary">Upload Image</a>
+    </div>
+
+    @* Pagination links *@
+    <div>
+        @if (ViewBag.CurrentPage > 1)
+        {
+            
+            <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1 })">Previous</a>
+        }
+        Page @ViewBag.CurrentPage of @ViewBag.TotalPages
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1 })">Next</a>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Add script to handle double-click on thumbnail
+        document.querySelectorAll('.thumbnail-link').forEach(function (link) {
+            link.addEventListener('dblclick', function () {
+                // Open in a new tab
+                window.open(this.href, '_blank');
+            });
+        });
+        // Function to change page size
+        function changePageSize(pageSize) {
+            var currentUrl = window.location.href;
+            var newUrl = currentUrl.replace(/(pageSize=\d+)/, 'pageSize=' + pageSize);
+            window.location.href = newUrl;
+        }
+    </script>
+}

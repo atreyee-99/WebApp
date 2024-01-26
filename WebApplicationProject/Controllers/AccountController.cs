@@ -29,7 +29,7 @@ namespace WebApplicationProject.Controllers
                 var result = await signInManager.PasswordSignInAsync(model.UserName!, model.Password!, model.RememberMe, false);
                 if (result.Succeeded) 
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Image");
                 }
                 ModelState.AddModelError("","Invalid Login attempt");
                 return View(model);
@@ -59,7 +59,7 @@ namespace WebApplicationProject.Controllers
                 {
                     await signInManager.SignInAsync(user, false);
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Image");
                 }
                 // show errors if registration is unsuccessful
                 foreach (var error in result.Errors)

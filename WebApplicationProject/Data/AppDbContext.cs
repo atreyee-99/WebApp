@@ -11,5 +11,6 @@ namespace WebApplicationProject.Data
         {
 
         }
+        public DbSet<Image> Images { get; set; }
     }
 }

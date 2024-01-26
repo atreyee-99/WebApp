@@ -12,7 +12,7 @@
         <form asp-action="Login" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="mb-1">
-                <label asp-for="UserName"></label>
+                <label asp-for="UserName">@Html.DisplayNameFor(a => a.UserName)</label>
                 <input asp-for="UserName" class="form-control"/>
                 <span asp-validation-for="UserName" class="text-danger"></span>
             </div>
