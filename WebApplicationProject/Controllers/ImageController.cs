@@ -1,13 +1,10 @@
-﻿//using Aspose.Imaging;
-using System.Drawing;
+﻿using System.Drawing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationProject.Data;
 using WebApplicationProject.Models;
-//using WebApplicationProject.Utilities;
 
 namespace WebApplicationProject.Controllers
 {
@@ -36,16 +33,26 @@ namespace WebApplicationProject.Controllers
             // Calculate the number of items to skip
             int skip = (page - 1) * pageSize;
 
+            //get cuurent user id
+            var userId = userManager.GetUserId(User);
+
+            // Retrieve images for the specific user
+            var images = context.Images
+                .Where(i => i.UserId == userId)
+                .OrderBy(i => i.Id)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToList();
+
             // Retrieve the specified number of images based on the selected page and page size
-            var images = context.Images.Skip(skip).Take(pageSize).ToList();
             //var images = context.Images.FromSqlRaw($"SELECT * FROM Images ORDER BY Id OFFSET {skip} ROWS FETCH NEXT {pageSize} ROWS ONLY").ToList();
 
-            // Total number of images in the database
-            var totalImages = context.Images.Count();
+            // Total number of images in the database specific to user ID
+            var totalImages = context.Images.Count(i => i.UserId == userId);
 
             // Pass data to the view
             ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)totalImages / pageSize);
+            ViewBag.TotalPages = totalImages == 0 ? 1 : (int)Math.Ceiling((double)totalImages / pageSize);
 
             return View(images);
         }
@@ -102,28 +109,6 @@ namespace WebApplicationProject.Controllers
             return RedirectToAction("Index");
         }
 
-        /* [HttpPost]
-        [HttpGet]
-        public IActionResult Rotate(int id)
-        {
-            var image = context.Images.Find(id);
-
-            if (image == null)
-            {
-                return NotFound();
-            }
-
-            // Rotate the image (assuming the ImageUtils.Rotate method is available)
-            //image.ImageData = ImageUtils.Rotate(image.ImageData, 90); // Rotate by 90 degrees (adjust as needed)
-
-           // image.ImageData = image.RotateFlip(RotateFlipType.Rotate270FlipNone);
-
-            context.SaveChanges();
-
-            // Redirect back to the Index page after rotation
-            return RedirectToAction("Index");
-        } */
-
         [HttpGet]
         public IActionResult Show(int id)
         {
@@ -149,7 +134,7 @@ namespace WebApplicationProject.Controllers
             }
 
             // Rotate the image by 90 degrees
-            byte[] rotatedImageData = RotateImage90Degrees(image.ImageData);
+            byte[] rotatedImageData = RotateImageClockwise90Degrees(image.ImageData);
 
             // Update the ImageData in the database
             image.ImageData = rotatedImageData;
@@ -162,7 +147,7 @@ namespace WebApplicationProject.Controllers
             return RedirectToAction("Index");
         }
 
-        private byte[] RotateImage90Degrees(byte[] imageData)
+        private byte[] RotateImageClockwise90Degrees(byte[] imageData)
         {
             using (MemoryStream ms = new MemoryStream(imageData))
             {
@@ -175,7 +160,8 @@ namespace WebApplicationProject.Controllers
                         using (var graphics = System.Drawing.Graphics.FromImage(rotatedImage))
                         {
                             graphics.TranslateTransform(rotatedImage.Width / 2, rotatedImage.Height / 2);
-                            graphics.RotateTransform(90);
+                            graphics.RotateTransform(90); //rotates by 90 degrees clockwise
+                            //graphics.RotateTransform(-90);
                             graphics.TranslateTransform(-rotatedImage.Height / 2, -rotatedImage.Width / 2);
 
                             graphics.DrawImage(originalImage, new System.Drawing.Point(0, 0));
