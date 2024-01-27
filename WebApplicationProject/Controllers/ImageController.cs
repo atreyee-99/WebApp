@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationProject.Data;
 using WebApplicationProject.Models;
@@ -33,7 +34,7 @@ namespace WebApplicationProject.Controllers
             // Calculate the number of items to skip
             int skip = (page - 1) * pageSize;
 
-            //get cuurent user id
+            //get current user id
             var userId = userManager.GetUserId(User);
 
             // Retrieve images for the specific user
@@ -105,7 +106,7 @@ namespace WebApplicationProject.Controllers
 
             context.Images.Remove(image);
             context.SaveChanges();
-            TempData["Success"] = "Image Deleted";
+            TempData["Success"] = "Image deleted successfully!";
             return RedirectToAction("Index");
         }
 
@@ -122,8 +123,31 @@ namespace WebApplicationProject.Controllers
             return View(image);
         }
 
-        [HttpGet]
-        [HttpPost]
+        //[HttpGet]
+        //[HttpPost]
+        //public IActionResult Edit(int id)
+        //{
+        //    var image = context.Images.Find(id);
+
+        //    if (image == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    // Rotate the image by 90 degrees
+        //    byte[] rotatedImageData = RotateImageClockwise90Degrees(image.ImageData);
+
+        //    // Update the ImageData in the database
+        //    image.ImageData = rotatedImageData;
+
+        //    // Save changes to the database
+        //    context.Entry(image).State = EntityState.Modified;
+        //    context.SaveChanges();
+
+        //    // Redirect back to the index page
+        //    return RedirectToAction("Index");
+        //}
+
         public IActionResult Edit(int id)
         {
             var image = context.Images.Find(id);
@@ -133,8 +157,43 @@ namespace WebApplicationProject.Controllers
                 return NotFound();
             }
 
-            // Rotate the image by 90 degrees
-            byte[] rotatedImageData = RotateImageClockwise90Degrees(image.ImageData);
+            // Populate rotation options for the dropdown
+            var rotationOptions = new List<SelectListItem>
+        {
+            new SelectListItem { Text = "Rotate Clockwise", Value = "Clockwise" },
+            new SelectListItem { Text = "Rotate Anticlockwise", Value = "Anticlockwise" }
+        };
+
+            ViewBag.RotationOptions = rotationOptions;
+
+            return View(image);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(int id, string rotationDirection)
+        {
+            var image = context.Images.Find(id);
+
+            if (image == null)
+            {
+                return NotFound();
+            }
+
+            byte[] rotatedImageData;
+
+            if (rotationDirection == "Clockwise")
+            {
+                rotatedImageData = RotateImageClockwise90Degrees(image.ImageData);
+            }
+            else if (rotationDirection == "Anticlockwise")
+            {
+                rotatedImageData = RotateImageAntiClockwise90Degrees(image.ImageData);
+            }
+            else
+            {
+                // Invalid rotation direction
+                return BadRequest();
+            }
 
             // Update the ImageData in the database
             image.ImageData = rotatedImageData;
@@ -143,7 +202,7 @@ namespace WebApplicationProject.Controllers
             context.Entry(image).State = EntityState.Modified;
             context.SaveChanges();
 
-            // Redirect back to the index page
+            // Redirect to the index page with the rotated image
             return RedirectToAction("Index");
         }
 
@@ -161,7 +220,35 @@ namespace WebApplicationProject.Controllers
                         {
                             graphics.TranslateTransform(rotatedImage.Width / 2, rotatedImage.Height / 2);
                             graphics.RotateTransform(90); //rotates by 90 degrees clockwise
-                            //graphics.RotateTransform(-90);
+                            graphics.TranslateTransform(-rotatedImage.Height / 2, -rotatedImage.Width / 2);
+
+                            graphics.DrawImage(originalImage, new System.Drawing.Point(0, 0));
+                        }
+
+                        using (MemoryStream rotatedMs = new MemoryStream())
+                        {
+                            rotatedImage.Save(rotatedMs, System.Drawing.Imaging.ImageFormat.Png);
+                            return rotatedMs.ToArray();
+                        }
+                    }
+                }
+            }
+        }
+
+        private byte[] RotateImageAntiClockwise90Degrees(byte[] imageData)
+        {
+            using (MemoryStream ms = new MemoryStream(imageData))
+            {
+                using (var originalImage = System.Drawing.Image.FromStream(ms))
+                {
+                    using (var rotatedImage = new System.Drawing.Bitmap(originalImage.Height, originalImage.Width))
+                    {
+                        rotatedImage.SetResolution(originalImage.HorizontalResolution, originalImage.VerticalResolution);
+
+                        using (var graphics = System.Drawing.Graphics.FromImage(rotatedImage))
+                        {
+                            graphics.TranslateTransform(rotatedImage.Width / 2, rotatedImage.Height / 2);
+                            graphics.RotateTransform(-90); //rotates by 90 degrees anti-clockwise
                             graphics.TranslateTransform(-rotatedImage.Height / 2, -rotatedImage.Width / 2);
 
                             graphics.DrawImage(originalImage, new System.Drawing.Point(0, 0));

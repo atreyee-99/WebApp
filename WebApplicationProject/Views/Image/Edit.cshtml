@@ -1,0 +1,82 @@
+﻿@using WebApplicationProject.Models;
+@model Image
+@{
+    ViewData["Title"] = "Edit Image";
+}
+
+<h2>Rotate Image</h2>
+
+<form asp-action="Edit" method="post">
+    <div class="form-group">
+        <label for="rotationDirection">Select Rotation Direction:</label>
+        <select id="rotationDirection" name="rotationDirection" asp-items="ViewBag.RotationOptions"></select>
+    </div>
+    <img id="rotatedImage" alt="@Model.FileName" class="img-thumbnail" />
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" asp-controller="Image" class="btn btn-secondary">Back to Gallery</a>
+    @* <a asp-action="DeleteRotation" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a> *@
+</form>
+
+@section Scripts {
+    <script>
+        // Display the original image on page load
+        var originalImageData = '@(Model?.ImageData != null ? Html.Raw(Convert.ToBase64String(Model.ImageData)) : "")';
+        var imgElement = document.getElementById('rotatedImage');
+
+        // Set the image source only if the data is valid
+        if (isValidBase64(originalImageData)) {
+            imgElement.src = 'data:image/png;base64,' + originalImageData;
+        } else {
+            console.error('Invalid base64 image data:', originalImageData);
+        }
+
+        function isValidBase64(str) {
+            try {
+                atob(str);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Function to update the displayed image based on the selected rotation option
+        function updateImage() {
+            var rotationDirection = document.getElementById('rotationDirection')?.value;
+
+            if (rotationDirection) {
+                // Making an AJAX call to get the rotated image data
+                $.ajax({
+                    type: 'POST',
+                    url: '/Image/Edit/' + '@Model?.Id',
+                    data: { rotationDirection: rotationDirection },
+                    success: function (data) {
+                        console.log('Received image data:', data.rotatedImageData);
+
+                        if (data) {
+                            var rotatedImageData = data.rotatedImageData;
+                            // Set the image source only if the data is valid
+                            if (isValidBase64(rotatedImageData)) {
+                                imgElement.src = 'data:image/png;base64,' + rotatedImageData;
+                            } else {
+                                console.error('Invalid base64 image data:', rotatedImageData);
+                            }
+                        }
+                        else {
+                            console.error('Rotation failed.');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', xhr.responseText);
+                        alert('An error occurred while rotating the image. Please try again.');
+                    },
+                    complete: function (xhr, status) {
+                        console.log('AJAX Request Complete:', status);
+                    }
+                });
+            }
+        }
+
+        // Attach the updateImage function to the change event of the rotation dropdown
+        document.getElementById('rotationDirection')?.addEventListener('change', updateImage);
+    </script>
+}
