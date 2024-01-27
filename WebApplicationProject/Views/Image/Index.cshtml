@@ -12,6 +12,12 @@
 
         @if (Model.Count > 0)
         {
+            @if (!string.IsNullOrEmpty(TempData["Success"] as string))
+            {
+                <div id="deletionAlert" class="alert alert-success">
+                    @TempData["Success"]
+                </div>
+            }
             <table class="table">
                 <thead>
                     <tr>
@@ -78,5 +84,12 @@
             var newUrl = currentUrl.replace(/(pageSize=\d+)/, 'pageSize=' + pageSize);
             window.location.href = newUrl;
         }
+        // JavaScript function to hide the deletion success alert after 5 seconds
+        setTimeout(function () {
+            var deletionAlert = document.getElementById('deletionAlert');
+            if (deletionAlert) {
+                deletionAlert.style.display = 'none';
+            }
+        }, 5000);
     </script>
 }
