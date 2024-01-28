@@ -6,77 +6,168 @@
 
 <h2>Rotate Image</h2>
 
-<form asp-action="Edit" method="post">
-    <div class="form-group">
-        <label for="rotationDirection">Select Rotation Direction:</label>
-        <select id="rotationDirection" name="rotationDirection" asp-items="ViewBag.RotationOptions"></select>
-    </div>
-    <img id="rotatedImage" alt="@Model.FileName" class="img-thumbnail" />
-    <button type="submit" class="btn btn-primary">Save</button>
+<!-- Rotation direction dropdown -->
+<select id="rotationDirection" name="rotationDirection" class="btn btn-secondary btn-sm dropdown-toggle">
+    <option value="">Select Rotation</option>
+    <option value="Clockwise">Rotate Clockwise</option>
+    <option value="Anticlockwise">Rotate Anticlockwise</option>
+</select>
+<br />
+<br />
+
+<!-- Display the original image -->
+<img id="originalImage" src="data:image/png;base64,@Convert.ToBase64String(Model.ImageData)" />
+<!-- Preview of the rotated image -->
+<img id="rotatedImagePreview" style="display: none; max-width: 100%; max-height: 100%;" />
+
+<!-- Form for submitting the rotation -->
+<form asp-action="Edit" asp-controller="Image" asp-route-id="@Model.Id" method="post" onsubmit="return confirmRotation()">
+    <input type="hidden" id="rotationDirectionHidden" name="rotationDirection" />
+    <br />
+    <!-- Button to trigger the rotation preview -->
+    <button type="button" class="btn btn-warning" onclick="previewRotation()">Preview Rotation</button>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
     <a asp-action="Index" asp-controller="Image" class="btn btn-secondary">Back to Gallery</a>
-    @* <a asp-action="DeleteRotation" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a> *@
 </form>
 
 @section Scripts {
     <script>
-        // Display the original image on page load
-        var originalImageData = '@(Model?.ImageData != null ? Html.Raw(Convert.ToBase64String(Model.ImageData)) : "")';
-        var imgElement = document.getElementById('rotatedImage');
-
-        // Set the image source only if the data is valid
-        if (isValidBase64(originalImageData)) {
-            imgElement.src = 'data:image/png;base64,' + originalImageData;
-        } else {
-            console.error('Invalid base64 image data:', originalImageData);
-        }
-
-        function isValidBase64(str) {
-            try {
-                atob(str);
-                return true;
-            } catch (e) {
-                return false;
+        function previewRotation() {
+            var rotationDirection = document.getElementById('rotationDirection').value;
+            if (rotationDirection === '') {
+                alert('Please select a rotation direction.');
+                return;
             }
-        }
 
-        // Function to update the displayed image based on the selected rotation option
-        function updateImage() {
-            var rotationDirection = document.getElementById('rotationDirection')?.value;
+            // Set the hidden input value for submission
+            document.getElementById('rotationDirectionHidden').value = rotationDirection;
 
-            if (rotationDirection) {
-                // Making an AJAX call to get the rotated image data
-                $.ajax({
-                    type: 'POST',
-                    url: '/Image/Edit/' + '@Model?.Id',
-                    data: { rotationDirection: rotationDirection },
-                    success: function (data) {
-                        console.log('Received image data:', data.rotatedImageData);
+            // Create a new Image object for preview
+            var originalImage = document.getElementById('originalImage');
+            var previewImage = new Image();
+            previewImage.onload = function () {
+                // Create a modal element
+                var modal = document.createElement('div');
+                modal.className = 'modal fade';
+                modal.tabIndex = -1;
+                modal.role = 'dialog';
+                modal.setAttribute('aria-labelledby', 'rotatedImageModalLabel');
+                modal.setAttribute('aria-hidden', 'true');
 
-                        if (data) {
-                            var rotatedImageData = data.rotatedImageData;
-                            // Set the image source only if the data is valid
-                            if (isValidBase64(rotatedImageData)) {
-                                imgElement.src = 'data:image/png;base64,' + rotatedImageData;
-                            } else {
-                                console.error('Invalid base64 image data:', rotatedImageData);
-                            }
-                        }
-                        else {
-                            console.error('Rotation failed.');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error:', xhr.responseText);
-                        alert('An error occurred while rotating the image. Please try again.');
-                    },
-                    complete: function (xhr, status) {
-                        console.log('AJAX Request Complete:', status);
-                    }
+                // Create modal dialog
+                var modalDialog = document.createElement('div');
+                modalDialog.className = 'modal-dialog';
+                modalDialog.role = 'document';
+
+                // Create modal content
+                var modalContent = document.createElement('div');
+                modalContent.className = 'modal-content';
+
+                // Create modal header
+                var modalHeader = document.createElement('div');
+                modalHeader.className = 'modal-header';
+
+                // Create close button icon
+                var closeButtonIcon = document.createElement('span');
+                closeButtonIcon.innerHTML = '&times;';
+
+                // Create modal title
+                var modalTitle = document.createElement('h5');
+                modalTitle.className = 'modal-title';
+                modalTitle.id = 'rotatedImageModalLabel';
+                modalTitle.innerHTML = 'Rotated Image Preview';
+
+                // Append close button and title to modal header
+                modalHeader.appendChild(modalTitle);
+
+                // Create modal body
+                var modalBody = document.createElement('div');
+                modalBody.className = 'modal-body';
+
+                // Create rotated image preview
+                var rotatedImagePreview = document.createElement('img');
+                rotatedImagePreview.style.maxWidth = '100%';
+                rotatedImagePreview.style.maxHeight = '100%';
+                rotatedImagePreview.src = previewImage.src;
+
+                // Append rotated image preview to modal body
+                modalBody.appendChild(rotatedImagePreview);
+
+                // Create modal footer
+                var modalFooter = document.createElement('div');
+                modalFooter.className = 'modal-footer';
+
+                // Create close button for modal footer
+                var closeFooterButton = document.createElement('button');
+                closeFooterButton.type = 'button';
+                closeFooterButton.className = 'btn btn-secondary';
+                closeFooterButton.setAttribute('data-dismiss', 'modal');
+                closeFooterButton.innerHTML = 'Close';
+
+                // Append close button to modal footer
+                modalFooter.appendChild(closeFooterButton);
+
+                // Append modal header, body, and footer to modal content
+                modalContent.appendChild(modalHeader);
+                modalContent.appendChild(modalBody);
+                modalContent.appendChild(modalFooter);
+
+                // Append modal content to modal dialog
+                modalDialog.appendChild(modalContent);
+
+                // Append modal dialog to modal
+                modal.appendChild(modalDialog);
+
+                // Append modal to body
+                document.body.appendChild(modal);
+
+                // Show the modal
+                $(modal).modal('show');
+
+                // Remove the modal element from the DOM when it is closed
+                closeFooterButton.addEventListener('click', function () {
+                    // Hide the modal
+                    $(modal).modal('hide');
+
+                    // Remove the modal element from the DOM after a delay
+                    setTimeout(function () {
+                        document.body.removeChild(modal);
+                    }, 200); // Adjust the delay as needed
                 });
+            };
+
+            // Set the source of the preview image by rotating the original image
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+            canvas.width = originalImage.naturalHeight;
+            canvas.height = originalImage.naturalWidth;
+            canvas.width = 500;
+            canvas.height = 500;
+
+            // Rotate the image on the canvas
+            if (rotationDirection === 'Clockwise') {
+                context.rotate(Math.PI / 2);
+                context.drawImage(originalImage, -originalImage.naturalHeight/64, -originalImage.naturalWidth)
+            } else if (rotationDirection === 'Anticlockwise') {
+                context.rotate(-Math.PI / 2);
+                context.drawImage(originalImage, -originalImage.naturalWidth, -originalImage.naturalHeight/64)
             }
+
+            // Convert the rotated canvas to a data URL
+            previewImage.src = canvas.toDataURL('image/png');
         }
 
-        // Attach the updateImage function to the change event of the rotation dropdown
-        document.getElementById('rotationDirection')?.addEventListener('change', updateImage);
+        function confirmRotation() {
+            var rotationDirection = document.getElementById('rotationDirection').value;
+            if (rotationDirection === '') {
+                alert('Please select a rotation direction.');
+                return false; // Prevent form submission
+            }
+
+            // Set the hidden input value for submission
+            document.getElementById('rotationDirectionHidden').value = rotationDirection;
+
+            return confirm('Are you sure you want to rotate this image?');
+        }
     </script>
 }
