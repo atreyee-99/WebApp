@@ -8,30 +8,52 @@
 
 <div class="row d-flex align-items-center justify-content-center">
     <div class="col-md-3 card p-3">
+        <h2 class="text-center text-info">External Login</h2>
+        @{
+            if (Model.ExternalLogins != null && Model.ExternalLogins.Count == 0)
+            {
+                <div>No external logins found</div>
+            }
+            else
+            {
+                <form method="post" asp-action="ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl">
+                    <div>
+                        @foreach (var provider in Model.ExternalLogins)
+                        {
+                            <button type="submit" class="btn btn-primary btn-sm" name="provider" value="@provider.Name" title="Login using your @provider.DisplayName account">@provider.DisplayName</button>
+                        }
+                    </div>
+                </form>
+            }
+        }
+
         <h2 class="text-center text-info">Login</h2>
-        <form asp-action="Login" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-1">
-                <label asp-for="UserName">@Html.DisplayNameFor(a => a.UserName)</label>
-                <input asp-for="UserName" class="form-control"/>
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="UserName"></label>
+                <input asp-for="UserName" class="form-control" />
                 <span asp-validation-for="UserName" class="text-danger"></span>
             </div>
-            <div class="mb-1">
+            <div class="form-group">
                 <label asp-for="Password"></label>
                 <input asp-for="Password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-            <div class="mb-1 form-check">
-                <label class="form-check-label">
-                    <input asp-for="RememberMe" class="form-check-input"/> @Html.DisplayNameFor(a=>a.RememberMe)
-                </label>
+            <div class="form-group">
+                <div class="checkbox">
+                    <label asp-for="RememberMe">
+                        <input asp-for="RememberMe" />
+                        @Html.DisplayNameFor(m => m.RememberMe)
+                    </label>
+                </div>
             </div>
             <div class="row">
                 <div class="col-8">
                     <a asp-action="Register" class="text-decoration-none float-start mt-2">Don't have an account?</a>
                 </div>
                 <div class="col-4">
-                    <input type="submit" value="Login" class="btn btn-primary btn-sm float-end"/>
+                    <button type="submit" class="btn btn-primary">Login</button>
                 </div>
             </div>
         </form>

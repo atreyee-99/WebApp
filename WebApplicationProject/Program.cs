@@ -12,6 +12,13 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(
     options => options.UseSqlServer(connectionString));
 
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = "491077901481-fvsqopkg5l20ne2pj7kc733glk8878p2.apps.googleusercontent.com";
+        options.ClientSecret = "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";
+    });
+
 builder.Services.AddIdentity<AppUser, IdentityRole>(
     options =>
     {
@@ -38,6 +45,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

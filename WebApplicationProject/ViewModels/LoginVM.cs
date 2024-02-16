@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Authentication;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebApplicationProject.ViewModels
 {
@@ -14,6 +15,11 @@ namespace WebApplicationProject.ViewModels
 
         [Display(Name = "Remember Me")]
         public bool RememberMe { get; set; }
+
+        // To store the url user is accessing before authentication, this variable is used to preserve that value and pass it between requests. User is redirected to the same URL after successful authentication
+        public string? ReturnUrl { get; set; }
+
+        public IList<AuthenticationScheme>? ExternalLogins { get; set; }
 
     }
 }
