@@ -17,8 +17,6 @@
 
 <!-- Display the original image -->
 <img id="originalImage" src="data:image/png;base64,@Convert.ToBase64String(Model.ImageData)" />
-<!-- Preview of the rotated image -->
-<img id="rotatedImagePreview" style="display: none; max-width: 100%; max-height: 100%;" />
 
 <!-- Form for submitting the rotation -->
 <form asp-action="Edit" asp-controller="Image" asp-route-id="@Model.Id" method="post" onsubmit="return confirmRotation()">
@@ -66,10 +64,6 @@
                 // Create modal header
                 var modalHeader = document.createElement('div');
                 modalHeader.className = 'modal-header';
-
-                // Create close button icon
-                var closeButtonIcon = document.createElement('span');
-                closeButtonIcon.innerHTML = '&times;';
 
                 // Create modal title
                 var modalTitle = document.createElement('h5');
@@ -139,8 +133,6 @@
             // Set the source of the preview image by rotating the original image
             var canvas = document.createElement('canvas');
             var context = canvas.getContext('2d');
-            canvas.width = originalImage.naturalHeight;
-            canvas.height = originalImage.naturalWidth;
             canvas.width = 500;
             canvas.height = 500;
 

@@ -10,7 +10,7 @@ namespace WebApplicationProject.Models
         public int Id { get; set; }
         public string? FileName { get; set; }
 
-        [Required(ErrorMessage = "No image selected. Please select an image.")]
+        [Required]
         public byte[] ImageData { get; set; }
         public string? UserId { get; set; }
 

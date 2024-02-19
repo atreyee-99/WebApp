@@ -8,7 +8,7 @@
     <div class="col-4">
         <h2>Upload Image</h2>
 
-        <form asp-action="Upload" asp-controller="Image" method="post" enctype="multipart/form-data">
+        <form asp-action="Upload" asp-controller="Image" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="ImageData" class="control-label">Select Image:</label>
@@ -32,4 +32,16 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        function validateForm(){
+            var fileInput = document.querySelector('input[type="file"]');
+
+            // validation if no file is attached
+            if (fileInput.files.length === 0){
+                alert("Please choose an image file");
+                return false;
+            }
+            return true;
+        }
+    </script>
 }

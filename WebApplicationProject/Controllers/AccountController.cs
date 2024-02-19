@@ -17,10 +17,6 @@ namespace WebApplicationProject.Controllers
             this.signInManager = signInManager;
             this.userManager = userManager;
         }
-        //public IActionResult Login()
-        //{
-        //    return View();
-        //}
 
         [HttpGet]
         [AllowAnonymous]

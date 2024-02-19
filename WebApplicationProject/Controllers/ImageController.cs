@@ -21,13 +21,6 @@ namespace WebApplicationProject.Controllers
             this.context = context;
         }
 
-        //public IActionResult Index()
-        // {
-        //  var userId = userManager.GetUserId(User);
-        // var images = context.Images.Where(i => i.UserId == userId).ToList();
-        // return View(images);
-        //}
-
         [ResponseCache(Duration = 3600)]
         public IActionResult Index(int page = 1, int pageSize = 5)
         {
@@ -44,9 +37,6 @@ namespace WebApplicationProject.Controllers
                 .Skip(skip)
                 .Take(pageSize)
                 .ToList();
-
-            // Retrieve the specified number of images based on the selected page and page size
-            //var images = context.Images.FromSqlRaw($"SELECT * FROM Images ORDER BY Id OFFSET {skip} ROWS FETCH NEXT {pageSize} ROWS ONLY").ToList();
 
             // Total number of images in the database specific to user ID
             var totalImages = context.Images.Count(i => i.UserId == userId);
@@ -122,31 +112,6 @@ namespace WebApplicationProject.Controllers
 
             return View(image);
         }
-
-        //[HttpGet]
-        //[HttpPost]
-        //public IActionResult Edit(int id)
-        //{
-        //    var image = context.Images.Find(id);
-
-        //    if (image == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    // Rotate the image by 90 degrees
-        //    byte[] rotatedImageData = RotateImageClockwise90Degrees(image.ImageData);
-
-        //    // Update the ImageData in the database
-        //    image.ImageData = rotatedImageData;
-
-        //    // Save changes to the database
-        //    context.Entry(image).State = EntityState.Modified;
-        //    context.SaveChanges();
-
-        //    // Redirect back to the index page
-        //    return RedirectToAction("Index");
-        //}
 
         public IActionResult Edit(int id)
         {
