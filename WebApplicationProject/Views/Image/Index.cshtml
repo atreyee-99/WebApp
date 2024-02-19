@@ -14,8 +14,14 @@
         {
             @if (!string.IsNullOrEmpty(TempData["Success"] as string))
             {
-                <div id="deletionAlert" class="alert alert-danger">
+                <div id="uploadDeleteAlert" class="alert alert-danger">
                     @TempData["Success"]
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(TempData["uploadSuccess"] as string))
+            {
+                <div id="uploadDeleteAlert" class="alert alert-success">
+                    @TempData["uploadSuccess"]
                 </div>
             }
             <table class="table">
@@ -84,12 +90,12 @@
             var newUrl = currentUrl.replace(/(pageSize=\d+)/, 'pageSize=' + pageSize);
             window.location.href = newUrl;
         }
-        // Jquery script to hide(fade) the deletion alert after 2 seconds
+        // Jquery script to hide(fade) the deletion alert after 1 second
         $(document).ready(function () {
-            var deletionAlert = $('#deletionAlert');
-            if (deletionAlert.length > 0) {
+            var uploadDeleteAlert = $('#uploadDeleteAlert');
+            if (uploadDeleteAlert.length > 0) {
                 setTimeout(function () {
-                    deletionAlert.fadeOut(1000); // 1000 milliseconds = 1 second
+                    uploadDeleteAlert.fadeOut(1000); // 1000 milliseconds = 1 second
                 }, 2000);
             }
         });

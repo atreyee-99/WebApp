@@ -8,7 +8,7 @@
 <h2>View Image</h2>
 
 <div>
-    <img src="data:image/png;base64,@Convert.ToBase64String(Model.ImageData)" alt="@Model.FileName" class="img-thumbnail" width="400" height="300" />
+    <img src="data:image/png;base64,@Convert.ToBase64String(Model.ImageData)" alt="@Model.FileName" class="img-thumbnail" width="400" height="300" title="@Model.FileName"/>
 </div>
 <br />
 <a asp-action="Index" asp-controller="Image" class="btn btn-secondary">Back to Gallery</a>

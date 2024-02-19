@@ -78,9 +78,9 @@ namespace WebApplicationProject.Controllers
 
                 context.Images.Add(image);
                 await context.SaveChangesAsync();
-                ViewBag.Message = fileName + " stored successfully!";
+                TempData["uploadSuccess"] = fileName + " uploaded successfully!";
+                return RedirectToAction("Index");
             }
-            return View();
         }
 
         [HttpPost]
@@ -94,9 +94,10 @@ namespace WebApplicationProject.Controllers
                 return NotFound();
             }
 
+            var fileName = image.FileName;
             context.Images.Remove(image);
             context.SaveChanges();
-            TempData["Success"] = "Image deleted successfully!";
+            TempData["Success"] = fileName + " deleted successfully!";
             return RedirectToAction("Index");
         }
 
