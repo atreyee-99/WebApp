@@ -38,6 +38,15 @@
                 alert("Please choose an image file");
                 return false;
             }
+            // validation if desired file format is not uploaded
+            else if (fileInput.files[0]){
+                var allowedFormats = ['jpg', 'jpeg', 'png'];
+                var extension = fileInput.files[0].name.split('.').pop().toLowerCase();
+                if (!allowedFormats.includes(extension)){
+                    alert('Please select a file of jpg/jpeg or png format only.');
+                    return false;
+                }
+            }
             return true;
         }
     </script>
