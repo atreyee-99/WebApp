@@ -84,12 +84,7 @@
                 window.open(this.href, '_blank');
             });
         });
-        // Function to change page size
-        function changePageSize(pageSize) {
-            var currentUrl = window.location.href;
-            var newUrl = currentUrl.replace(/(pageSize=\d+)/, 'pageSize=' + pageSize);
-            window.location.href = newUrl;
-        }
+
         // Jquery script to hide(fade) the deletion alert after 1 second
         $(document).ready(function () {
             var uploadDeleteAlert = $('#uploadDeleteAlert');
